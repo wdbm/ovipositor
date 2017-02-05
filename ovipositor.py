@@ -47,7 +47,7 @@ options:
 """
 
 name    = "ovipositor"
-version = "2017-02-05T0157Z"
+version = "2017-02-05T0245Z"
 logo    = None
 
 import base64
@@ -98,8 +98,11 @@ def main(options):
         )
 
     global application
-    
-    application.run(debug = program.verbose)
+
+    application.run(
+        host  = "0.0.0.0",
+        debug = program.verbose
+    )
 
     program.terminate()
 
