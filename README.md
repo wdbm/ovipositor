@@ -27,7 +27,7 @@ There is one table in an ovipositor database called "shortlinks". This table has
 
 # examining databases
 
-A database can be examined using [datavision](https://github.com/wdbm/datavision) [https://github.com/wdbm/datavision/blob/master/view_database_SQLite.py].
+A database can be examined using [datavision](https://github.com/wdbm/datavision) [view_database_SQLite.py](https://github.com/wdbm/datavision/blob/master/view_database_SQLite.py).
 
 # changing from YOURLS to ovipositor
 
