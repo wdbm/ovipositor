@@ -12,6 +12,8 @@ Flask link-shortening service and database system
 
 Ovipositor is a link-shortener web program. A long URL is entered, together with an optional shortlink and an optional comment. When creating a shortlink, the long URL and the shortlink are saved to a database. When an attempt is made to use a shortlink, the specified shortlink is searched for in the database and, if the shortlink is in the database, there is a redirect to its corresponding long URL.
 
+![](screenshot.png)
+
 # setup
 
 ```Bash
