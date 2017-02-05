@@ -41,9 +41,9 @@ The YOURLS database contains three tables, "yourls_url", "sqlite_sequence" and "
     - clicks
     - ip
     - keyword
-    - url
     - timestamp
     - title
+    - url
 - sqlite_sequence
     - name
     - seq
