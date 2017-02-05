@@ -10,7 +10,19 @@ Flask link-shortening service and database system
 
 # introduction
 
-Ovipositor is a link-shortener web program. A long URL is entered, together with an optional shortlink and an optional comment. The long URL and the shortlink are saved to a database. When an attempt is made to use a shortlink, the specified shortlink is searched for in the database and, if the shortlink is in the database, there is a redirect to its corresponding long URL.
+Ovipositor is a link-shortener web program. A long URL is entered, together with an optional shortlink and an optional comment. When creating a shortlink, the long URL and the shortlink are saved to a database. When an attempt is made to use a shortlink, the specified shortlink is searched for in the database and, if the shortlink is in the database, there is a redirect to its corresponding long URL.
+
+# setup
+
+```Bash
+sudo pip install ovipositor
+```
+
+# usage
+
+```Bash
+./ovipositor.py
+```
 
 # ovipositor database structure
 
@@ -34,6 +46,14 @@ A database can be examined using [datavision](https://github.com/wdbm/datavision
 An export dump should be made of the YOURLS MySQL database and the dump should be converted to an SQLite3 database. This can be done using [mysql2sqlite](https://github.com/dumblob/mysql2sqlite).
 
 The YOURLS SQLite database then can be converted to an ovipositor database using the script `convert_YOURLS_SQLite_database_to_ovipositor_database.py`.
+
+```Bash
+convert_YOURLS_SQLite_database_to_ovipositor_database.py --help
+
+convert_YOURLS_SQLite_database_to_ovipositor_database.py \
+    --databaseyourls=linkdb.db                           \
+    --databaseovipositor=ovipositor.db
+```
 
 The YOURLS database contains three tables, "yourls_url", "sqlite_sequence" and "yourls_options". The tables have the following fields:
 
