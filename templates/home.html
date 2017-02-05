@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+
+<head>
+
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+<div class="container">
+<div class="navbar-header">
+<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+<span class="sr-only">toggle navigation</span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="#">ovipositor shortlink service</a>
+</div>
+<div id="navbar" class="navbar-collapse collapse">
+</div>
+</div>
+</nav>
+<div class="jumbotron">
+<div class="container">
+<br />
+{% if not shortlink_received %}
+<div class="row">
+<div class="col-md-offset-5 col-md-3">
+<h4>Enter URL to shortlink:</h4>
+<form method="post" class="navbar-form navbar-right" action="">
+<div class="form-group">
+<input type="text" id="url" name="url" class="form-control input-lg chat-input" placeholder="long URL" /><br><br>
+<input type="text" id="shortlink" name="shortlink" class="form-control input-lg chat-input" placeholder="optional shortlink" /><br><br>
+<input type="text" id="comment" name="comment" class="form-control input-lg chat-input" placeholder="optional comment" /><br><br>
+<button type="submit" class="btn btn-lg btn-info">submit</button>
+</div>
+</form>
+</div>
+</div>
+{% else %}
+<div>
+short URL: <a href="{{short_url}}">{{short_url}}</a>
+</div>
+{% endif %}
+</div>
+
+</div>
+
+<footer>
+<p><a href="https://www.github.com/wdbm/ovipositor">ovipositor</a></p>
+</footer>
+</div>
+
+</body>
+
+</html>
