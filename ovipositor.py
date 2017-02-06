@@ -47,7 +47,7 @@ options:
 """
 
 name    = "ovipositor"
-version = "2017-02-06T0039Z"
+version = "2017-02-06T2042Z"
 logo    = None
 
 import base64
@@ -92,13 +92,14 @@ def main(options):
 
     ensure_database(filename = filename_database)
 
-    if program.verbose:
-        print_database_shortlinks(
-            filename = filename_database
-        )
+    #if program.verbose:
+    #    print_database_shortlinks(
+    #        filename = filename_database
+    #    )
 
     global application
 
+    log.info("run Flask application")
     application.run(
         host  = "0.0.0.0",
         port  = socket,
@@ -112,7 +113,7 @@ def ensure_database(
     ):
 
     if not os.path.isfile(filename):
-        log.debug("database {filename} nonexistent; creating database".format(
+        log.info("database {filename} nonexistent; creating database".format(
             filename = filename
         ))
         create_database(filename = filename)
@@ -121,7 +122,7 @@ def create_database(
     filename = "database.db"
     ):
 
-    log.debug("create database {filename}".format(
+    log.info("create database {filename}".format(
         filename = filename
     ))
     os.system(
@@ -134,7 +135,7 @@ def access_database(
     filename = "database.db"
     ):
 
-    log.debug("access database {filename}".format(
+    log.info("access database {filename}".format(
         filename = filename
     ))
     database = dataset.connect("sqlite:///" + filename)
@@ -154,10 +155,17 @@ def print_database_shortlinks(
         )
     )
 
-@application.route("/", methods = ["GET", "POST"])
+@application.route("/")
+def index():
+
+    log.info("route index")
+
+    return redirect("index.html")
+
+@application.route("/ovipositor", methods = ["GET", "POST"])
 def home():
 
-    log.debug("route home")
+    log.info("route home")
 
     if request.method == "POST":
         URL_long  = str(request.form.get("url"))
@@ -171,9 +179,10 @@ def home():
         # specified URL.
         if shortlink == "":
             shortlink = base64.urlsafe_b64encode(URL_long)
-        log.debug("shorten URL {URL_long} to URL {shortlink}".format(
+        log.info("shorten URL {URL_long} to URL {shortlink} for {IP}".format(
             URL_long  = URL_long,
-            shortlink = shortlink
+            shortlink = shortlink,
+            IP        = IP
         ))
         # If a comment is not specified, set it to the URL.
         if not comment:
@@ -186,6 +195,7 @@ def home():
         # retaining its count, IP, shortlink and timestamp information.
         result = table.find_one(shortlink = shortlink)
         if result is None:
+            log.info("save shortlink to database")
             table.insert(
                 dict(
                     comment   = comment,
@@ -197,6 +207,7 @@ def home():
                 )
             )
         else:
+            log.info("update shortlink in database")
             table.update(
                 dict(
                     id        = result["id"],
@@ -209,6 +220,10 @@ def home():
                 ),
                 "id"
             )
+        return render_template(
+                   "home.html",
+                   shortlink = shortlink
+               )
 
     if program.verbose:
         print_database_shortlinks(
@@ -222,9 +237,12 @@ def redirect_shortlink(
     shortlink_received
     ):
 
-    log.debug("route redirect")
+    log.info("route redirect")
 
-    if shortlink_received != "favicon.ico":
+    if\
+        shortlink_received != "ovipositor" and\
+        shortlink_received != "index.html" and\
+        shortlink_received != "favicon.ico":
         log.debug("look up shortlink {shortlink}".format(
             shortlink = shortlink_received
         ))

@@ -29,7 +29,7 @@
 <div class="jumbotron">
 <div class="container">
 <br />
-{% if not shortlink_received %}
+{% if not shortlink %}
 <div class="row">
 <div class="col-md-offset-5 col-md-3">
 <h4>Enter URL to shortlink:</h4>
@@ -45,7 +45,7 @@
 </div>
 {% else %}
 <div>
-short URL: <a href="{{short_url}}">{{short_url}}</a>
+saved shortlink: {{shortlink}}</a>
 </div>
 {% endif %}
 </div>
