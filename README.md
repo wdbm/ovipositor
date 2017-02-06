@@ -17,6 +17,7 @@ Ovipositor is a link-shortener web program. A long URL is entered, together with
 # setup
 
 ```Bash
+sudo apt-get install sqlite
 sudo pip install ovipositor
 ```
 
