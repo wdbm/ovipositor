@@ -43,11 +43,11 @@ options:
     -u, --username=USERNAME  username
     --database=FILENAME      database [default: ovipositor.db]
     --url=text               URL      [default: http://127.0.0.1]
-    --socket=text            socket   [default: 5000]
+    --socket=text            socket   [default: 80]
 """
 
 name    = "ovipositor"
-version = "2017-02-05T0245Z"
+version = "2017-02-06T0039Z"
 logo    = None
 
 import base64
@@ -88,7 +88,7 @@ def main(options):
     global socket
     filename_database = options["--database"]
     URL               = options["--url"]
-    socket            = options["--socket"]
+    socket            = int(options["--socket"])
 
     ensure_database(filename = filename_database)
 
@@ -101,6 +101,7 @@ def main(options):
 
     application.run(
         host  = "0.0.0.0",
+        port  = socket,
         debug = program.verbose
     )
 
@@ -233,7 +234,7 @@ def redirect_shortlink(
             result = table.find_one(shortlink = shortlink_received)
             if result is None:
                 log.debug("shortlink not found")
-                URL_long = URL + ":" + socket
+                URL_long = URL + ":" + str(socket)
             else:
                 log.debug("shortlink found, updating usage count")
                 URL_long = result["URL"]
@@ -254,7 +255,7 @@ def redirect_shortlink(
             URL = URL
         ))
     else:
-        URL_long = URL + ":" + socket
+        URL_long = URL + ":" + str(socket)
 
     return redirect(URL_long)
 
