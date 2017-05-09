@@ -36,18 +36,25 @@ usage:
     program [options]
 
 options:
-    -h, --help               display help message
-    --version                display version and exit
-    -v, --verbose            verbose logging
-    -s, --silent             silent
-    -u, --username=USERNAME  username
-    --database=FILENAME      database [default: ovipositor.db]
-    --url=text               URL      [default: http://127.0.0.1]
-    --socket=text            socket   [default: 80]
+    -h, --help                 display help message
+    --version                  display version and exit
+    -v, --verbose              verbose logging
+    -s, --silent               silent
+    -u, --username=USERNAME    username
+
+    --database=FILENAME        database             [default: ovipositor.db]
+
+    --url=text                 URL                  [default: http://127.0.0.1]
+    --socket=text              socket               [default: 80]
+
+    --logfile=FILENAME         log filename         [default: log.txt]
+
+    --restartregularly         have program restart regularly
+    --restartinterval=SECONDS  restart interval (s) [default: 1800]
 """
 
 name    = "ovipositor"
-version = "2017-02-06T2042Z"
+version = "2017-05-09T2150Z"
 logo    = None
 
 import base64
@@ -55,6 +62,7 @@ import docopt
 import math
 import os
 import string
+import sys
 import urlparse
 
 import datetime
@@ -69,26 +77,39 @@ import propyte
 import pyprel
 import shijian
 
+global clock_restart
+clock_restart = shijian.Clock(name = "restart")
+
 application = Flask(__name__)
 
 def main(options):
 
+    global filename_database
+    global URL
+    global socket
+    global restart_regularly
+    global interval_restart
+    filename_database = options["--database"]
+    URL               = options["--url"]
+    socket            = int(options["--socket"])
+    filename_log      = options["--logfile"]
+    restart_regularly = options["--restartregularly"]
+    interval_restart  = float(options["--restartinterval"])
+
     global program
     program = propyte.Program(
-        options = options,
-        name    = name,
-        version = version,
-        logo    = logo
+        options      = options,
+        name         = name,
+        version      = version,
+        logo         = logo,
+        filename_log = filename_log
     )
     global log
     from propyte import log
 
-    global filename_database
-    global URL
-    global socket
-    filename_database = options["--database"]
-    URL               = options["--url"]
-    socket            = int(options["--socket"])
+    log.info("\nrestart interval: {interval} s".format(
+        interval = interval_restart
+    ))
 
     ensure_database(filename = filename_database)
 
@@ -107,6 +128,20 @@ def main(options):
     )
 
     program.terminate()
+
+def restart_check():
+
+    if restart_regularly and clock_restart.time() >= interval_restart:
+        log.info("regular restart procedure engaged")
+        shutdown_server()
+        #propyte.restart()
+
+def shutdown_server():
+
+    func = request.environ.get("werkzeug.server.shutdown")
+    if func is None:
+        raise RuntimeError("not running with the Werkzeug Server")
+    func()
 
 def ensure_database(
     filename = "database.db"
@@ -160,12 +195,16 @@ def index():
 
     log.info("route index")
 
+    restart_check()
+
     return redirect("index.html")
 
 @application.route("/ovipositor", methods = ["GET", "POST"])
 def home():
 
     log.info("route home")
+
+    restart_check()
 
     if request.method == "POST":
         URL_long  = str(request.form.get("url"))

@@ -23,8 +23,18 @@ sudo pip install ovipositor
 
 # usage
 
+Ovipositor can be set running in a simple way:
+
 ```Bash
 ./ovipositor.py
+```
+
+Ovipositor is under development and can become slow if left running for extended times, so it can make some sense to have it restart regularly:
+
+```Bash
+while true; do
+    ./ovipositor.py --restartregularly
+done
 ```
 
 # ovipositor database structure
