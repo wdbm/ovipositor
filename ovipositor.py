@@ -36,25 +36,27 @@ usage:
     program [options]
 
 options:
-    -h, --help                 display help message
-    --version                  display version and exit
-    -v, --verbose              verbose logging
-    -s, --silent               silent
-    -u, --username=USERNAME    username
+    -h, --help                   display help message
+    --version                    display version and exit
+    -v, --verbose                verbose logging
+    -s, --silent                 silent
+    -u, --username=USERNAME      username
 
-    --database=FILENAME        database             [default: ovipositor.db]
+    --database=FILENAME          database             [default: ovipositor.db]
 
-    --url=text                 URL                  [default: http://127.0.0.1]
-    --socket=text              socket               [default: 80]
+    --url=text                   URL                  [default: http://127.0.0.1]
+    --socket=text                socket               [default: 80]
 
-    --logfile=FILENAME         log filename         [default: log.txt]
+    --logfile=FILENAME           log filename         [default: log.txt]
 
-    --restartregularly         have program restart regularly
-    --restartinterval=SECONDS  restart interval (s) [default: 1800]
+    --restart_regularly          have program restart regularly
+    --restart_interval=SECONDS   restart interval (s) [default: 1800]
+
+    --print_database_shortlinks  print database shortlinks and quit
 """
 
 name    = "ovipositor"
-version = "2017-05-09T2150Z"
+version = "2018-01-15T2350Z"
 logo    = None
 
 import base64
@@ -63,7 +65,10 @@ import math
 import os
 import string
 import sys
-import urlparse
+try:
+    from urllib.parse import urlparse as urlparse
+except:
+    from urlparse import urlparse
 
 import datetime
 import dataset
@@ -89,12 +94,14 @@ def main(options):
     global socket
     global restart_regularly
     global interval_restart
+    global printout
     filename_database = options["--database"]
     URL               = options["--url"]
     socket            = int(options["--socket"])
     filename_log      = options["--logfile"]
-    restart_regularly = options["--restartregularly"]
-    interval_restart  = float(options["--restartinterval"])
+    restart_regularly = options["--restart_regularly"]
+    interval_restart  = float(options["--restart_interval"])
+    printout          = options["--print_database_shortlinks"]
 
     global program
     program = propyte.Program(
@@ -107,16 +114,15 @@ def main(options):
     global log
     from propyte import log
 
+    if printout:
+        print_database_shortlinks()
+        sys.exit()
+
     log.info("\nrestart interval: {interval} s".format(
         interval = interval_restart
     ))
 
     ensure_database(filename = filename_database)
-
-    #if program.verbose:
-    #    print_database_shortlinks(
-    #        filename = filename_database
-    #    )
 
     global application
 
@@ -174,7 +180,6 @@ def access_database(
         filename = filename
     ))
     database = dataset.connect("sqlite:///" + filename)
-
     return database
 
 def print_database_shortlinks(
@@ -194,25 +199,21 @@ def print_database_shortlinks(
 def index():
 
     log.info("route index")
-
     restart_check()
-
     return redirect("index.html")
 
 @application.route("/ovipositor", methods = ["GET", "POST"])
 def home():
 
     log.info("route home")
-
     restart_check()
-
     if request.method == "POST":
         URL_long  = str(request.form.get("url"))
         shortlink = str(request.form.get("shortlink"))
         comment   = str(request.form.get("comment"))
         IP        = str(request.remote_addr)
         ## If the scheme of the URL is not specified, assume that it is HTTP.
-        #if urlparse.urlparse(URL_long).scheme == "":
+        #if urlparse(URL_long).scheme == "":
         #    URL_long = "http://" + URL_long
         # If a shortlink is not specified, create one by base 64 encoding the
         # specified URL.
@@ -263,12 +264,6 @@ def home():
                    "home.html",
                    shortlink = shortlink
                )
-
-    if program.verbose:
-        print_database_shortlinks(
-            filename = filename_database
-        )
-
     return render_template("home.html")
 
 @application.route("/<shortlink_received>")
@@ -277,7 +272,6 @@ def redirect_shortlink(
     ):
 
     log.info("route redirect")
-
     if\
         shortlink_received != "ovipositor" and\
         shortlink_received != "index.html" and\
@@ -307,13 +301,11 @@ def redirect_shortlink(
                     ),
                     "id"
                 )
-
         log.debug("redirect to URL {URL}".format(
             URL = URL
         ))
     else:
         URL_long = URL + ":" + str(socket)
-
     return redirect(URL_long)
 
 if __name__ == "__main__":

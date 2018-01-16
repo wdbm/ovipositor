@@ -9,7 +9,7 @@ def main():
 
     setuptools.setup(
         name             = "ovipositor",
-        version          = "2017.05.09.2150",
+        version          = "2018.01.15.2350",
         description      = "link-shortening website and database system",
         long_description = long_description(),
         url              = "https://github.com/wdbm/ovipositor",
@@ -28,12 +28,13 @@ def main():
                            "shijian"
                            ],
         scripts          = [
-                           "convert_YOURLS_SQLite_database_to_ovipositor_database.py"
+                           "convert_YOURLS_SQLite_database_to_ovipositor_database.py",
+                           "ovipositor.py"
                            ],
         entry_points     = """
-            [console_scripts]
-            ovipositor = ovipositor:ovipositor
-        """
+                           [console_scripts]
+                           ovipositor = ovipositor:ovipositor
+                           """
     )
 
 def long_description(
