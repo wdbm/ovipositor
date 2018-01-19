@@ -42,21 +42,23 @@ options:
     -s, --silent                 silent
     -u, --username=USERNAME      username
 
-    --database=FILENAME          database             [default: ovipositor.db]
+    --database=FILENAME          database                                               [default: ovipositor.db]
 
-    --url=text                   URL                  [default: http://127.0.0.1]
-    --socket=text                socket               [default: 80]
+    --home=text                  redirection URL for no shortlink entry or redirection  [default: index.html]
 
-    --logfile=FILENAME           log filename         [default: log.txt]
+    --url=text                   URL                                                    [default: http://127.0.0.1]
+    --socket=text                socket                                                 [default: 80]
+
+    --logfile=FILENAME           log filename                                           [default: log.txt]
 
     --restart_regularly          have program restart regularly
-    --restart_interval=SECONDS   restart interval (s) [default: 1800]
+    --restart_interval=SECONDS   restart interval (s)                                   [default: 1800]
 
     --print_database_shortlinks  print database shortlinks and quit
 """
 
 name    = "ovipositor"
-version = "2018-01-15T2350Z"
+version = "2018-01-19T1533Z"
 logo    = None
 
 import base64
@@ -90,18 +92,20 @@ application = Flask(__name__)
 def main(options):
 
     global filename_database
+    global home_URL
     global URL
     global socket
     global restart_regularly
     global interval_restart
     global printout
-    filename_database = options["--database"]
-    URL               = options["--url"]
-    socket            = int(options["--socket"])
-    filename_log      = options["--logfile"]
-    restart_regularly = options["--restart_regularly"]
+    filename_database =       options["--database"]
+    home_URL          =       options["--home"]
+    URL               =       options["--url"]
+    socket            =   int(options["--socket"])
+    filename_log      =       options["--logfile"]
+    restart_regularly =       options["--restart_regularly"]
     interval_restart  = float(options["--restart_interval"])
-    printout          = options["--print_database_shortlinks"]
+    printout          =       options["--print_database_shortlinks"]
 
     global program
     program = propyte.Program(
@@ -200,7 +204,7 @@ def index():
 
     log.info("route index")
     restart_check()
-    return redirect("index.html")
+    return redirect(home_URL)
 
 @application.route("/ovipositor", methods = ["GET", "POST"])
 def home():
