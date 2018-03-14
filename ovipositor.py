@@ -58,7 +58,7 @@ options:
 """
 
 name    = "ovipositor"
-version = "2018-01-19T1533Z"
+version = "2018-03-14T1542Z"
 logo    = None
 
 import base64
@@ -76,6 +76,7 @@ import datetime
 import dataset
 from flask import (
     Flask,
+    make_response,
     redirect,
     render_template,
     request
@@ -205,6 +206,14 @@ def index():
     log.info("route index")
     restart_check()
     return redirect(home_URL)
+
+@application.route("/robots.txt", methods = ["GET"])
+def robots():
+
+    if os.path.isfile("robots.txt")
+        response = make_response(open("robots.txt").read())
+        response.headers["Content-type"] = "text/plain"
+        return response
 
 @application.route("/ovipositor", methods = ["GET", "POST"])
 def home():
