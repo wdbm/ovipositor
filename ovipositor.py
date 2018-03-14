@@ -58,7 +58,7 @@ options:
 """
 
 name    = "ovipositor"
-version = "2018-03-14T1549Z"
+version = "2018-03-14T1551Z"
 logo    = None
 
 import base64
@@ -210,6 +210,7 @@ def index():
 @application.route("/robots.txt", methods = ["GET"])
 def robots():
 
+    log.info("route robots.txt")
     if os.path.isfile("robots.txt"):
         response = make_response(open("robots.txt").read())
         response.headers["Content-type"] = "text/plain"
