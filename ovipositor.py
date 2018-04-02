@@ -58,7 +58,7 @@ options:
 """
 
 name    = "ovipositor"
-version = "2018-04-02T1704Z"
+version = "2018-04-02T1720Z"
 logo    = None
 
 import base64
@@ -194,7 +194,7 @@ def index():
     restart_check()
     return redirect(home_URL)
 
-@app.route("/robots.txt", methods = ["GET"])
+@application.route("/robots.txt", methods = ["GET"])
 def robots():
     try:
         response = make_response("User-agent: *\nDisallow: /")
