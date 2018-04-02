@@ -58,7 +58,7 @@ options:
 """
 
 name    = "ovipositor"
-version = "2018-03-14T1551Z"
+version = "2018-04-02T1704Z"
 logo    = None
 
 import base64
@@ -118,37 +118,29 @@ def main(options):
     )
     global log
     from propyte import log
-
     if printout:
         print_database_shortlinks()
         sys.exit()
-
     log.info("\nrestart interval: {interval} s".format(
         interval = interval_restart
     ))
-
     ensure_database(filename = filename_database)
-
     global application
-
     log.info("run Flask application")
     application.run(
         host  = "0.0.0.0",
         port  = socket,
         debug = program.verbose
     )
-
     program.terminate()
 
 def restart_check():
-
     if restart_regularly and clock_restart.time() >= interval_restart:
         log.info("regular restart procedure engaged")
         shutdown_server()
         #propyte.restart()
 
 def shutdown_server():
-
     func = request.environ.get("werkzeug.server.shutdown")
     if func is None:
         raise RuntimeError("not running with the Werkzeug Server")
@@ -157,7 +149,6 @@ def shutdown_server():
 def ensure_database(
     filename = "database.db"
     ):
-
     if not os.path.isfile(filename):
         log.info("database {filename} nonexistent; creating database".format(
             filename = filename
@@ -167,7 +158,6 @@ def ensure_database(
 def create_database(
     filename = "database.db"
     ):
-
     log.info("create database {filename}".format(
         filename = filename
     ))
@@ -180,7 +170,6 @@ def create_database(
 def access_database(
     filename = "database.db"
     ):
-
     log.info("access database {filename}".format(
         filename = filename
     ))
@@ -190,7 +179,6 @@ def access_database(
 def print_database_shortlinks(
     filename = "database.db"
     ):
-
     database = access_database(filename = filename_database)
     print(
         pyprel.Table(
@@ -202,23 +190,21 @@ def print_database_shortlinks(
 
 @application.route("/")
 def index():
-
     log.info("route index")
     restart_check()
     return redirect(home_URL)
 
-@application.route("/robots.txt", methods = ["GET"])
+@app.route("/robots.txt", methods = ["GET"])
 def robots():
-
-    log.info("route robots.txt")
-    if os.path.isfile("robots.txt"):
-        response = make_response(open("robots.txt").read())
+    try:
+        response = make_response("User-agent: *\nDisallow: /")
         response.headers["Content-type"] = "text/plain"
         return response
+    except:
+        pass
 
 @application.route("/ovipositor", methods = ["GET", "POST"])
 def home():
-
     log.info("route home")
     restart_check()
     if request.method == "POST":
@@ -284,7 +270,6 @@ def home():
 def redirect_shortlink(
     shortlink_received
     ):
-
     log.info("route redirect")
     if\
         shortlink_received != "ovipositor" and\
