@@ -58,7 +58,7 @@ options:
 """
 
 name    = "ovipositor"
-version = "2018-04-02T1720Z"
+version = "2018-06-18T2338Z"
 logo    = None
 
 import base64
@@ -207,105 +207,113 @@ def robots():
 def home():
     log.info("route home")
     restart_check()
-    if request.method == "POST":
-        URL_long  = str(request.form.get("url"))
-        shortlink = str(request.form.get("shortlink"))
-        comment   = str(request.form.get("comment"))
-        IP        = str(request.remote_addr)
-        ## If the scheme of the URL is not specified, assume that it is HTTP.
-        #if urlparse(URL_long).scheme == "":
-        #    URL_long = "http://" + URL_long
-        # If a shortlink is not specified, create one by base 64 encoding the
-        # specified URL.
-        if shortlink == "":
-            shortlink = base64.urlsafe_b64encode(URL_long)
-        log.info("shorten URL {URL_long} to URL {shortlink} for {IP}".format(
-            URL_long  = URL_long,
-            shortlink = shortlink,
-            IP        = IP
-        ))
-        # If a comment is not specified, set it to the URL.
-        if not comment:
-            comment = URL
-        # Save the specified URL and the shortlink to database.
-        # Access the database.
-        database = access_database(filename = filename_database)
-        table    = database["shortlinks"]
-        # If the shortlink is specified in the database, update its entry while
-        # retaining its count, IP, shortlink and timestamp information.
-        result = table.find_one(shortlink = shortlink)
-        if result is None:
-            log.info("save shortlink to database")
-            table.insert(
-                dict(
-                    comment   = comment,
-                    count     = 0,
-                    IP        = IP,
-                    shortlink = shortlink,
-                    timestamp = datetime.datetime.utcnow(),
-                    URL       = URL_long,
+    try:
+        if request.method == "POST":
+            URL_long  = str(request.form.get("url"))
+            shortlink = str(request.form.get("shortlink"))
+            comment   = str(request.form.get("comment"))
+            IP        = str(request.remote_addr)
+            ## If the scheme of the URL is not specified, assume that it is HTTP.
+            #if urlparse(URL_long).scheme == "":
+            #    URL_long = "http://" + URL_long
+            # If a shortlink is not specified, create one by base 64 encoding the
+            # specified URL.
+            if shortlink == "":
+                shortlink = base64.urlsafe_b64encode(URL_long)
+            log.info("shorten URL {URL_long} to URL {shortlink} for {IP}".format(
+                URL_long  = URL_long,
+                shortlink = shortlink,
+                IP        = IP
+            ))
+            # If a comment is not specified, set it to the URL.
+            if not comment:
+                comment = URL
+            # Save the specified URL and the shortlink to database.
+            # Access the database.
+            database = access_database(filename = filename_database)
+            table    = database["shortlinks"]
+            # If the shortlink is specified in the database, update its entry while
+            # retaining its count, IP, shortlink and timestamp information.
+            result = table.find_one(shortlink = shortlink)
+            if result is None:
+                log.info("save shortlink to database")
+                table.insert(
+                    dict(
+                        comment   = comment,
+                        count     = 0,
+                        IP        = IP,
+                        shortlink = shortlink,
+                        timestamp = datetime.datetime.utcnow(),
+                        URL       = URL_long,
+                    )
                 )
-            )
-        else:
-            log.info("update shortlink in database")
-            table.update(
-                dict(
-                    id        = result["id"],
-                    comment   = comment,
-                    #count     = 0,
-                    #IP        = IP,
-                    #shortlink = shortlink,
-                    #timestamp = datetime.datetime.utcnow(),
-                    URL       = URL_long,
-                ),
-                "id"
-            )
-        return render_template(
-                   "home.html",
-                   shortlink = shortlink
-               )
-    return render_template("home.html")
+            else:
+                log.info("update shortlink in database")
+                table.update(
+                    dict(
+                        id        = result["id"],
+                        comment   = comment,
+                        #count     = 0,
+                        #IP        = IP,
+                        #shortlink = shortlink,
+                        #timestamp = datetime.datetime.utcnow(),
+                        URL       = URL_long,
+                    ),
+                    "id"
+                )
+            return render_template(
+                       "home.html",
+                       shortlink = shortlink
+                   )
+        return render_template("home.html")
+    except:
+        log.error("error")
+        redirect(home_URL)
 
 @application.route("/<shortlink_received>")
 def redirect_shortlink(
     shortlink_received
     ):
     log.info("route redirect")
-    if\
-        shortlink_received != "ovipositor" and\
-        shortlink_received != "index.html" and\
-        shortlink_received != "favicon.ico":
-        log.debug("look up shortlink {shortlink}".format(
-            shortlink = shortlink_received
-        ))
-        database = access_database(filename = filename_database)
-        if "shortlinks" in database.tables:
-            table = database["shortlinks"]
-            result = table.find_one(shortlink = shortlink_received)
-            if result is None:
-                log.debug("shortlink not found")
-                URL_long = URL + ":" + str(socket)
-            else:
-                log.debug("shortlink found, updating usage count")
-                URL_long = result["URL"]
-                table.update(
-                    dict(
-                        id        = result["id"],
-                        #comment   = comment,
-                        count     = result["count"] + 1,
-                        #IP        = IP,
-                        #shortlink = shortlink,
-                        #timestamp = datetime.datetime.utcnow(),
-                        #URL       = URL_long,
-                    ),
-                    "id"
-                )
-        log.debug("redirect to URL {URL}".format(
-            URL = URL
-        ))
-    else:
-        URL_long = URL + ":" + str(socket)
-    return redirect(URL_long)
+    try:
+        if\
+            shortlink_received != "ovipositor" and\
+            shortlink_received != "index.html" and\
+            shortlink_received != "favicon.ico":
+            log.debug("look up shortlink {shortlink}".format(
+                shortlink = shortlink_received
+            ))
+            database = access_database(filename = filename_database)
+            if "shortlinks" in database.tables:
+                table = database["shortlinks"]
+                result = table.find_one(shortlink = shortlink_received)
+                if result is None:
+                    log.debug("shortlink not found")
+                    URL_long = URL + ":" + str(socket)
+                else:
+                    log.debug("shortlink found, updating usage count")
+                    URL_long = result["URL"]
+                    table.update(
+                        dict(
+                            id        = result["id"],
+                            #comment   = comment,
+                            count     = result["count"] + 1,
+                            #IP        = IP,
+                            #shortlink = shortlink,
+                            #timestamp = datetime.datetime.utcnow(),
+                            #URL       = URL_long,
+                        ),
+                        "id"
+                    )
+            log.debug("redirect to URL {URL}".format(
+                URL = URL
+            ))
+        else:
+            URL_long = URL + ":" + str(socket)
+        return redirect(URL_long)
+    except:
+        log.error("shortlink error")
+        redirect(home_URL)
 
 if __name__ == "__main__":
     options = docopt.docopt(__doc__)
