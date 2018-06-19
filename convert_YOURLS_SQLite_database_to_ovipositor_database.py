@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 """
 ################################################################################
@@ -31,24 +32,19 @@
 #                                                                              #
 ################################################################################
 
-Usage:
+usage:
     program [options]
 
-Options:
-    -h, --help                 display help message
-    --version                  display version and exit
-    -v, --verbose              verbose logging
-    -s, --silent               silent
-    -u, --username=USERNAME    username
-    --databaseyourls=FILE      database [default: linkdb.db]
-    --databaseovipositor=FILE  database [default: ovipositor.db]
+options:
+    -h, --help                  display help message
+    --version                   display version and exit
+
+    --database_YOURLS=FILE      database [default: linkdb.db]
+    --database_ovipositor=FILE  database [default: ovipositor.db]
 """
 
-from __future__ import division
-
-name    = "convert_YOURLS_SQLite_database_to_ovipositor_database"
-version = "2017-02-05T0024Z"
-logo    = None
+name        = "convert_YOURLS_SQLite_database_to_ovipositor_database"
+__version__ = "2018-06-19T1107Z"
 
 import datetime
 import docopt
@@ -60,35 +56,24 @@ import sys
 import time
 
 import dataset
-import propyte
-import pyprel
 import shijian
 
-def main(options):
+log = logging.getLogger(name)
+log.addHandler(technicolor.ColorisingStreamHandler())
+log.setLevel(logging.DEBUG)
 
-    global program
-    program = propyte.Program(
-        options = options,
-        name    = name,
-        version = version,
-        logo    = logo
-        )
-    global log
-    from propyte import log
-
-    filename_database_YOURLS     = options["--databaseyourls"]
-    filename_database_ovipositor = options["--databaseovipositor"]
-
+def main(options = docopt.docopt(__doc__)):
+    if options["--version"]:
+        print(__version__)
+        exit()
+    filename_database_YOURLS     = options["--database_YOURLS"]
+    filename_database_ovipositor = options["--database_ovipositor"]
     if not os.path.isfile(filename_database_YOURLS):
-        log.debug("database {filename} not found".format(
-            filename = filename_database_YOURLS
-        ))
-        program.terminate()
+        log.debug("database {filename} not found".format(filename = filename_database_YOURLS))
+        sys.exit()
     database = access_database(filename = filename_database_YOURLS)
     name_table = "yourls_url"
-    log.info("access table \"{name_table}\"".format(
-        name_table = name_table
-    ))
+    log.info("access table \"{name_table}\"".format(name_table = name_table))
     table = database[name_table]
     rows = []
     for index_row, row in enumerate(table):
@@ -102,64 +87,35 @@ def main(options):
                 URL       = row["url"]
             )
         )
-
     ensure_database(filename = filename_database_ovipositor)
     database = access_database(filename = filename_database_ovipositor)
     name_table = "shortlinks"
-    log.info("access table \"{name_table}\"".format(
-        name_table = name_table
-    ))
+    log.info("access table \"{name_table}\"".format(name_table = name_table))
     table = database[name_table]
-    log.info("save retrieved data to table \"{name_table}\"".format(
-        name_table = name_table
-    ))
+    log.info("save retrieved data to table \"{name_table}\"".format(name_table = name_table))
     progress_extent = len(rows)
     progress = shijian.Progress()
     progress.engage_quick_calculation_mode()
     for index, row in enumerate(rows):
         table.insert(row)
-        print(progress.add_datum(fraction = (index + 1) / progress_extent))
+        print(progress.add_datum(fraction = (index + 1) / float(progress_extent)))
+    sys.exit()
 
-    program.terminate()
-
-def ensure_database(
-    filename = "database.db"
-    ):
-
+def ensure_database(filename = "database.db"):
     if not os.path.isfile(filename):
         log.debug("database {filename} nonexistent; creating database".format(
             filename = filename
         ))
         create_database(filename = filename)
 
-def create_database(
-    filename = "database.db"
-    ):
+def create_database(filename = "database.db"):
+    log.debug("create database {filename}".format(filename = filename))
+    os.system("sqlite3 " + filename + " \"create table aTable(field1 int); drop table aTable;\"")
 
-    log.debug("create database {filename}".format(
-        filename = filename
-    ))
-    os.system(
-        "sqlite3 " + \
-        filename   + \
-        " \"create table aTable(field1 int); drop table aTable;\""
-    )
-
-def access_database(
-    filename = "database.db"
-    ):
-
-    log.debug("access database {filename}".format(
-        filename = filename
-    ))
+def access_database(filename = "database.db"):
+    log.debug("access database {filename}".format(filename = filename))
     database = dataset.connect("sqlite:///" + filename)
-
     return database
 
 if __name__ == "__main__":
-
-    options = docopt.docopt(__doc__)
-    if options["--version"]:
-        print(version)
-        exit()
-    main(options)
+    main()

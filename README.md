@@ -17,7 +17,7 @@ Ovipositor is a link-shortener web program. A long URL is entered, together with
 # setup
 
 ```Bash
-sudo apt-get install sqlite
+sudo apt install sqlite
 sudo pip install ovipositor
 ```
 
@@ -64,8 +64,8 @@ The YOURLS SQLite database then can be converted to an ovipositor database using
 convert_YOURLS_SQLite_database_to_ovipositor_database.py --help
 
 convert_YOURLS_SQLite_database_to_ovipositor_database.py \
-    --databaseyourls=linkdb.db                           \
-    --databaseovipositor=ovipositor.db
+    --database_YOURLD=linkdb.db                          \
+    --database_ovipositor=ovipositor.db
 ```
 
 The YOURLS database contains three tables, "yourls_url", "sqlite_sequence" and "yourls_options". The tables have the following fields:
