@@ -73,7 +73,7 @@ import shijian
 import technicolor
 
 name        = "ovipositor"
-__version__ = "2018-06-19T2017Z"
+__version__ = "2018-06-19T2023Z"
 
 log = logging.getLogger(name)
 log.addHandler(technicolor.ColorisingStreamHandler())
@@ -102,6 +102,7 @@ def main(options = docopt.docopt(__doc__)):
   restart_regularly =       options["--restart_regularly"]
   interval_restart  = float(options["--restart_interval"])
   printout          =       options["--print_database_shortlinks"]
+  log.info("ovipositor")
   if printout:
     print_database_shortlinks()
     sys.exit()
