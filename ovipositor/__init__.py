@@ -248,7 +248,7 @@ def redirect_shortlink(shortlink_received):
             ),
             "id"
           )
-      log.debug("redirect to URL {URL_long}".format(URL = URL_long))
+      log.debug("redirect to URL {URL_long}".format(URL_long = URL_long))
     else:
       URL_long = URL + ":" + str(socket)
     return redirect(URL_long)
