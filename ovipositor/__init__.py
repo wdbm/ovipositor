@@ -73,7 +73,7 @@ import shijian
 import technicolor
 
 name        = "ovipositor"
-__version__ = "2018-06-19T2026Z"
+__version__ = "2018-06-19T2042Z"
 
 log = logging.getLogger(name)
 log.addHandler(technicolor.ColorisingStreamHandler())
@@ -248,7 +248,7 @@ def redirect_shortlink(shortlink_received):
             ),
             "id"
           )
-      log.debug("redirect to URL {URL}".format(URL = URL))
+      log.debug("redirect to URL {URL_long}".format(URL = URL_long))
     else:
       URL_long = URL + ":" + str(socket)
     return redirect(URL_long)
