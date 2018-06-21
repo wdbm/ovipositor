@@ -7,7 +7,7 @@ import setuptools
 def main():
   setuptools.setup(
     name                 = "ovipositor",
-    version              = "2018.06.19.2042",
+    version              = "2018.06.21.1654",
     description          = "link-shortening website and database system",
     long_description     = long_description(),
     url                  = "https://github.com/wdbm/ovipositor",
@@ -23,10 +23,10 @@ def main():
                            "technicolor"
                            ],
     entry_points         = {
-                           "ovipositor": ("ovipositor=ovipositor.__init__:main")
+                           "console_scripts": ("ovipositor = ovipositor.__init__:main")
                            },
     scripts              = [
-                           "convert_YOURLS_SQLite_database_to_ovipositor_database.py"
+                           "/ovipositor/convert_YOURLS_SQLite_database_to_ovipositor_database.py"
                            ],
     include_package_data = True,
     zip_safe             = False

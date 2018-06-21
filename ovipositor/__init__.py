@@ -73,7 +73,7 @@ import shijian
 import technicolor
 
 name        = "ovipositor"
-__version__ = "2018-06-19T2042Z"
+__version__ = "2018-06-21T1654Z"
 
 log = logging.getLogger(name)
 log.addHandler(technicolor.ColorisingStreamHandler())
