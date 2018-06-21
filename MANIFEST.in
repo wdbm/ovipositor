@@ -1,0 +1,2 @@
+recursive-include ovipositor/templates *
+recursive-include ovipositor/static *

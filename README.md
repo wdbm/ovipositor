@@ -2,7 +2,7 @@
 
 Flask link-shortening service and database system
 
-![](ovipositor.png)
+![](https://raw.githubusercontent.com/wdbm/ovipositor/master/media/ovipositor.png)
 
 # credits
 
@@ -12,7 +12,7 @@ Flask link-shortening service and database system
 
 Ovipositor is a link-shortener web program. A long URL is entered, together with an optional shortlink and an optional comment. When creating a shortlink, the long URL and the shortlink are saved to a database. When an attempt is made to use a shortlink, the specified shortlink is searched for in the database and, if the shortlink is in the database, there is a redirect to its corresponding long URL.
 
-![](screenshot.png)
+![](https://raw.githubusercontent.com/wdbm/ovipositor/master/media/screenshot.png)
 
 # setup
 
@@ -26,14 +26,14 @@ sudo pip install ovipositor
 Ovipositor can be set running in a simple way:
 
 ```Bash
-./ovipositor.py
+ovipositor
 ```
 
-Ovipositor is under development and can become slow if left running for extended times, so it can make some sense to have it restart regularly:
+In case of hacking attempts, it can make some sense to have it restart regularly:
 
 ```Bash
 while true; do
-    ./ovipositor.py --restartregularly
+    ovipositor --restart_regularly
 done
 ```
 
@@ -68,7 +68,7 @@ convert_YOURLS_SQLite_database_to_ovipositor_database.py \
     --database_ovipositor=ovipositor.db
 ```
 
-The YOURLS database contains three tables, "yourls_url", "sqlite_sequence" and "yourls_options". The tables have the following fields:
+The YOURLS database contains three tables, "yourls_url", "sqlite_sequence" and "yourls_options". These tables have the following fields:
 
 - yourls_url
     - clicks
@@ -87,7 +87,7 @@ The YOURLS database contains three tables, "yourls_url", "sqlite_sequence" and "
 
 In changing from YOURLS to ovipositor, the following database table and field conversions are made:
 
-|**yourls_url**                 |**ovipositor**                 |
+|**YOURLS**                     |**ovipositor**                 |
 |-------------------------------|-------------------------------|
 |yourls_url                     |shortlinks                     |
 |clicks                         |count                          |
