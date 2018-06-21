@@ -44,7 +44,7 @@ options:
 """
 
 name        = "convert_YOURLS_SQLite_database_to_ovipositor_database"
-__version__ = "2018-06-19T1107Z"
+__version__ = "2018-06-21T1656Z"
 
 import datetime
 import docopt
@@ -57,6 +57,7 @@ import time
 
 import dataset
 import shijian
+import technicolor
 
 log = logging.getLogger(name)
 log.addHandler(technicolor.ColorisingStreamHandler())
