@@ -29,14 +29,6 @@ Ovipositor can be set running in a simple way:
 ovipositor
 ```
 
-In case of hacking attempts, it can make some sense to have it restart regularly:
-
-```Bash
-while true; do
-    ovipositor --restart_regularly
-done
-```
-
 # ovipositor database structure
 
 There is one table in an ovipositor database called "shortlinks". This table has 6 fields:
