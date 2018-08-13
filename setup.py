@@ -7,7 +7,7 @@ import setuptools
 def main():
   setuptools.setup(
     name                 = "ovipositor",
-    version              = "2018.06.21.1711",
+    version              = "2018.08.13.2125",
     description          = "link-shortening website and database system",
     long_description     = long_description(),
     url                  = "https://github.com/wdbm/ovipositor",

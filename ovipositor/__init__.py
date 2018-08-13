@@ -35,16 +35,11 @@ usage:
     program [options]
 
 options:
-    -h, --help                   display help message
-    --version                    display version and exit
-    --database=FILENAME          database                                              [default: ovipositor.db]
-    --home=TEXT                  redirection URL for no shortlink entry or redirection [default: index.html]
-    --url=TEXT                   URL                                                   [default: http://127.0.0.1]
-    --socket=TEXT                socket                                                [default: 80]
-    --logfile=FILENAME           log filename                                          [default: log.txt]
-    --restart_regularly          have program restart regularly
-    --restart_interval=SECONDS   restart interval (s)                                  [default: 1800]
-    --print_database_shortlinks  print database shortlinks and quit
+    -h, --help           display help message
+    --version            display version and exit
+    --database=FILENAME  database                                              [default: ovipositor.db]
+    --home=TEXT          redirection URL for no shortlink entry or redirection [default: index.html]
+    --logfile=FILENAME   log filename                                          [default: log.txt]
 """
 
 import base64
@@ -73,61 +68,40 @@ import shijian
 import technicolor
 
 name        = "ovipositor"
-__version__ = "2018-06-21T1711Z"
+__version__ = "2018-08-13T2125Z"
 
 log = logging.getLogger(name)
 log.addHandler(technicolor.ColorisingStreamHandler())
 log.setLevel(logging.DEBUG)
 
-global clock_restart
-clock_restart = shijian.Clock(name = "restart")
-application = Flask(__name__)
+app = Flask(__name__)
 
-def main(options = docopt.docopt(__doc__)):
+def WSGI(argv=[]):
+  global options
+  options = docopt.docopt(__doc__, argv = argv)
+  return app
+
+def main():
+  global options
+  options = docopt.docopt(__doc__)
   if options["--version"]:
     print(__version__)
     exit()
   global filename_database
   global home_URL
-  global URL
-  global socket
-  global restart_regularly
-  global interval_restart
-  global printout
-  filename_database =       options["--database"]
-  home_URL          =       options["--home"]
-  URL               =       options["--url"]
-  socket            =   int(options["--socket"])
-  filename_log      =       options["--logfile"]
-  restart_regularly =       options["--restart_regularly"]
-  interval_restart  = float(options["--restart_interval"])
-  printout          =       options["--print_database_shortlinks"]
-  log.info(name)
-  if printout:
-    print_database_shortlinks()
-    sys.exit()
-  log.info("restart interval: {interval} s".format(interval = interval_restart))
+  filename_database = options["--database"]
+  home_URL          = options["--home"]
+  filename_log      = options["--logfile"]
+  log.info(name + __version__)
   ensure_database(filename = filename_database)
-  global application
   log.info("run Flask application")
-  application.run(
+  app.run(
     host     = "0.0.0.0",
-    port     = socket,
-    debug    = True,
+    port     = 80,
+    debug    = False,
     threaded = True
   )
   sys.exit()
-
-def restart_check():
-  if restart_regularly and clock_restart.time() >= interval_restart:
-    log.info("regular restart procedure engaged")
-    shutdown_server()
-
-def shutdown_server():
-  func = request.environ.get("werkzeug.server.shutdown")
-  if func is None:
-    raise RuntimeError("not running with the Werkzeug Server")
-  func()
 
 def ensure_database(filename = "database.db"):
   if not os.path.isfile(filename):
@@ -143,17 +117,12 @@ def access_database(filename = "database.db"):
   database = dataset.connect("sqlite:///" + filename)
   return database
 
-def print_database_shortlinks(filename = "database.db"):
-  database = access_database(filename = filename_database)
-  print(pyprel.Table(contents = pyprel.table_dataset_database_table(table = database["shortlinks"])))
-
-@application.route("/")
+@app.route("/")
 def index():
   log.info("route index")
-  restart_check()
   return redirect(home_URL)
 
-@application.route("/robots.txt", methods = ["GET"])
+@app.route("/robots.txt", methods = ["GET"])
 def robots():
   try:
     response = make_response("User-agent: *\nDisallow: /")
@@ -162,10 +131,9 @@ def robots():
   except:
     pass
 
-@application.route("/ovipositor", methods = ["GET", "POST"])
+@app.route("/ovipositor", methods = ["GET", "POST"])
 def home():
   log.info("route home")
-  restart_check()
   try:
     if request.method == "POST":
       URL_long  = str(request.form.get("url"))
@@ -186,7 +154,7 @@ def home():
       ))
       # If a comment is not specified, set it to the URL.
       if not comment:
-        comment = URL
+        comment = URL_long
       # Save the specified URL and the shortlink to database.
       # Access the database.
       database = access_database(filename = filename_database)
@@ -216,13 +184,13 @@ def home():
           ),
           "id"
         )
-      return render_template("home.html", shortlink = shortlink)
-    return render_template("home.html")
+      return render_template(home_URL, shortlink = shortlink)
+    return render_template(home_URL)
   except:
     log.error("error")
     redirect(home_URL)
 
-@application.route("/<shortlink_received>")
+@app.route("/<shortlink_received>")
 def redirect_shortlink(shortlink_received):
   log.info("route redirect")
   try:
@@ -237,7 +205,10 @@ def redirect_shortlink(shortlink_received):
         result = table.find_one(shortlink = shortlink_received)
         if result is None:
           log.debug("shortlink not found")
-          URL_long = URL + ":" + str(socket)
+          response = make_response("shortlink not found")
+          response.headers["Content-type"] = "text/plain"
+          return response
+          #URL_long = home_URL
         else:
           log.debug("shortlink found, updating usage count")
           URL_long = result["URL"]
@@ -250,11 +221,14 @@ def redirect_shortlink(shortlink_received):
           )
       log.debug("redirect to URL {URL_long}".format(URL_long = URL_long))
     else:
-      URL_long = URL + ":" + str(socket)
+      URL_long = home_URL
     return redirect(URL_long)
   except:
     log.error("shortlink error")
-    redirect(home_URL)
+    response = make_response("shortlink error")
+    response.headers["Content-type"] = "text/plain"
+    return response
+    #redirect(home_URL)
 
 if __name__ == "__main__":
   main()
