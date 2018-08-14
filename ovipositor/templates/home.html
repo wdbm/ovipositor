@@ -16,7 +16,7 @@
 <span class="icon-bar"></span>
 <span class="icon-bar"></span>
 </button>
-<a class="navbar-brand" href="#">ovipositor shortlink service</a>
+<a class="navbar-brand" href="ovipositor">ovipositor shortlink service</a>
 </div>
 <div id="navbar" class="navbar-collapse collapse">
 </div>
@@ -25,7 +25,7 @@
 <div class="jumbotron">
 <div class="container">
 <br />
-{% if not shortlink %}
+{% if not message %}
 <div class="row">
 <div class="col-md-offset-5 col-md-3">
 <h4>Enter URL to shortlink:</h4>
@@ -39,15 +39,17 @@
 </form>
 </div>
 </div>
-{% else %}
-<div>
-saved shortlink: {{shortlink}}</a>
+{% elif message %}
+<div class="row">
+<div class="col-md-offset-5 col-md-3">
+<h4>{{message}}</h4>
+</div>
 </div>
 {% endif %}
 </div>
 </div>
 <footer>
-<p><a href="https://www.github.com/wdbm/ovipositor">ovipositor</a></p>
+<a class="navbar-brand" href="https://www.github.com/wdbm/ovipositor">ovipositor</a>
 </footer>
 </div>
 </body>

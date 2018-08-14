@@ -7,7 +7,7 @@ import setuptools
 def main():
   setuptools.setup(
     name                 = "ovipositor",
-    version              = "2018.08.13.2125",
+    version              = "2018.08.14.1738",
     description          = "link-shortening website and database system",
     long_description     = long_description(),
     url                  = "https://github.com/wdbm/ovipositor",
@@ -16,16 +16,15 @@ def main():
     license              = "GPLv3",
     packages             = setuptools.find_packages(),
     install_requires     = [
-                           "datetime",
                            "dataset",
                            "Flask",
-                           "shijian",
                            "technicolor"
                            ],
     entry_points         = {
                            "console_scripts": ("ovipositor = ovipositor.__init__:main")
                            },
     scripts              = [
+                           "mysql2sqlite",
                            "ovipositor/convert_YOURLS_SQLite_database_to_ovipositor_database.py"
                            ],
     include_package_data = True,

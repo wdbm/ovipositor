@@ -21,30 +21,32 @@ sudo apt install sqlite
 sudo pip install ovipositor
 ```
 
-# usage
-
-Ovipositor can be set running in a simple way:
+# Flask
 
 ```Bash
-ovipositor
+while true; do
+    ovipositor --home="index.html"
+done
+```
+
+# Gunicorn
+
+```Bash
+sudo gunicorn --workers=1 "ovipositor.__init__:WSGI(argv=['--home=index.html'])" --bind=0.0.0.0:443 --certfile=/home/user/certificates/fullchain.pem --keyfile=/home/user/certificates/privkey.pem
 ```
 
 # ovipositor database structure
 
 There is one table in an ovipositor database called "shortlinks". This table has 6 fields:
 
-|**table field**|**description**                            |
-|---------------|-------------------------------------------|
-|comment        |shortlink descriptive comment              |
-|count          |shortlink usage count                      |
-|IP             |IP address that created the shortlink      |
-|URL            |long URL to which the shortlink corresponds|
-|shortlink      |shortlink text                             |
-|timestamp      |shortlink creation timestamp               |
-
-# examining databases
-
-A database can be examined using [datavision](https://github.com/wdbm/datavision) [view_database_SQLite.py](https://github.com/wdbm/datavision/blob/master/view_database_SQLite.py).
+|**field**|**description**                            |
+|---------|-------------------------------------------|
+|comment  |shortlink descriptive comment              |
+|count    |shortlink usage count                      |
+|IP       |IP address that created the shortlink      |
+|URL      |long URL to which the shortlink corresponds|
+|shortlink|shortlink text                             |
+|timestamp|shortlink creation timestamp               |
 
 # changing from YOURLS to ovipositor
 

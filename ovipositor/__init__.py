@@ -35,14 +35,16 @@ usage:
     program [options]
 
 options:
-    -h, --help           display help message
-    --version            display version and exit
-    --database=FILENAME  database                                              [default: ovipositor.db]
-    --home=TEXT          redirection URL for no shortlink entry or redirection [default: index.html]
-    --logfile=FILENAME   log filename                                          [default: log.txt]
+    -h, --help             display help message
+    --version              display version and exit
+    --database=FILENAME    database                                              [default: ovipositor.db]
+    --home=TEXT            redirection URL for no shortlink entry or redirection [default: index.html]
+    --redirect_HTTPS=BOOL  direct loaded HTTP URLS to HTTPS versions             [default: true]
+    --logfile=FILENAME     log filename                                          [default: log.txt]
 """
 
 import base64
+import datetime
 import docopt
 import logging
 import math
@@ -54,7 +56,6 @@ try:
 except:
   from urlparse import urlparse
 
-import datetime
 import dataset
 from flask import (
   Flask,
@@ -63,22 +64,31 @@ from flask import (
   render_template,
   request
 )
-import pyprel
-import shijian
 import technicolor
 
 name        = "ovipositor"
-__version__ = "2018-08-13T2125Z"
+__version__ = "2018-08-14T1738Z"
 
 log = logging.getLogger(name)
 log.addHandler(technicolor.ColorisingStreamHandler())
 log.setLevel(logging.DEBUG)
+
+log.info(name + " " + __version__)
 
 app = Flask(__name__)
 
 def WSGI(argv=[]):
   global options
   options = docopt.docopt(__doc__, argv = argv)
+  global filename_database
+  global home_URL
+  global redirect_HTTPS
+  filename_database = options["--database"]
+  home_URL          = options["--home"]
+  filename_log      = options["--logfile"]
+  redirect_HTTPS    = options["--redirect_HTTPS"].lower() == "true"
+  log.info(name + __version__)
+  ensure_database(filename = filename_database)
   return app
 
 def main():
@@ -89,15 +99,16 @@ def main():
     exit()
   global filename_database
   global home_URL
+  global redirect_HTTPS
   filename_database = options["--database"]
   home_URL          = options["--home"]
   filename_log      = options["--logfile"]
-  log.info(name + __version__)
+  redirect_HTTPS    = options["--redirect_HTTPS"].lower() == "true"
   ensure_database(filename = filename_database)
-  log.info("run Flask application")
   app.run(
     host     = "0.0.0.0",
-    port     = 80,
+    #port     = 80,
+    port     = 443,
     debug    = False,
     threaded = True
   )
@@ -140,11 +151,7 @@ def home():
       shortlink = str(request.form.get("shortlink"))
       comment   = str(request.form.get("comment"))
       IP        = str(request.remote_addr)
-      ## If the scheme of the URL is not specified, assume that it is HTTP.
-      #if urlparse(URL_long).scheme == "":
-      #    URL_long = "http://" + URL_long
-      # If a shortlink is not specified, create one by base 64 encoding the
-      # specified URL.
+      # If a shortlink is not specified, create one by base 64 encoding the specified URL.
       if shortlink == "":
         shortlink = base64.urlsafe_b64encode(URL_long)
       log.info("shorten URL {URL_long} to URL {shortlink} for {IP}".format(
@@ -159,8 +166,8 @@ def home():
       # Access the database.
       database = access_database(filename = filename_database)
       table    = database["shortlinks"]
-      # If the shortlink is specified in the database, update its entry while
-      # retaining its count, IP, shortlink and timestamp information.
+      # If the shortlink is specified in the database, update its entry while retaining its count,
+      # IP, shortlink and timestamp information.
       result = table.find_one(shortlink = shortlink)
       if result is None:
         log.info("save shortlink to database")
@@ -184,18 +191,17 @@ def home():
           ),
           "id"
         )
-      return render_template(home_URL, shortlink = shortlink)
-    return render_template(home_URL)
+      return render_template("home.html", message = "saved shortlink " + shortlink)
+    return render_template("home.html")
   except:
     log.error("error")
-    redirect(home_URL)
+    return render_template("home.html", message = "error")
 
 @app.route("/<shortlink_received>")
 def redirect_shortlink(shortlink_received):
   log.info("route redirect")
   try:
     if\
-      shortlink_received != "ovipositor" and\
       shortlink_received != "index.html" and\
       shortlink_received != "favicon.ico":
       log.debug("look up shortlink {shortlink}".format(shortlink = shortlink_received))
@@ -205,13 +211,9 @@ def redirect_shortlink(shortlink_received):
         result = table.find_one(shortlink = shortlink_received)
         if result is None:
           log.debug("shortlink not found")
-          response = make_response("shortlink not found")
-          response.headers["Content-type"] = "text/plain"
-          return response
-          #URL_long = home_URL
+          return render_template("home.html", message = "shortlink not found")
         else:
           log.debug("shortlink found, updating usage count")
-          URL_long = result["URL"]
           table.update(
             dict(
               id    = result["id"],
@@ -219,16 +221,18 @@ def redirect_shortlink(shortlink_received):
             ),
             "id"
           )
+          URL_long = result["URL"]
+          if redirect_HTTPS:
+            if URL_long.startswith("http://"):
+                URL_long = URL_long.replace("http://", "https://")
+                log.debug("change shortlink found from HTTP to HTTPS")
       log.debug("redirect to URL {URL_long}".format(URL_long = URL_long))
     else:
       URL_long = home_URL
     return redirect(URL_long)
-  except:
+  except Exception:
     log.error("shortlink error")
-    response = make_response("shortlink error")
-    response.headers["Content-type"] = "text/plain"
-    return response
-    #redirect(home_URL)
+    return render_template("home.html", message = "shortlink error")
 
 if __name__ == "__main__":
   main()
