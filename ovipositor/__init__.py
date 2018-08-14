@@ -67,7 +67,7 @@ from flask import (
 import technicolor
 
 name        = "ovipositor"
-__version__ = "2018-08-14T1738Z"
+__version__ = "2018-08-14T1819Z"
 
 log = logging.getLogger(name)
 log.addHandler(technicolor.ColorisingStreamHandler())
@@ -87,7 +87,6 @@ def WSGI(argv=[]):
   home_URL          = options["--home"]
   filename_log      = options["--logfile"]
   redirect_HTTPS    = options["--redirect_HTTPS"].lower() == "true"
-  log.info(name + __version__)
   ensure_database(filename = filename_database)
   return app
 
